@@ -40,10 +40,12 @@ func copyModels(destination string) {
 
 // Main docs
 func main() {
-	// copyModels("tata")
+	tmpDir := "tata"
+	copyModels(tmpDir)
+	defer os.RemoveAll(tmpDir)
 
 	fset := token.NewFileSet()
-	pkgsParser, errParser := parser.ParseDir(fset, filepath.Join("go", "models"), nil, parser.ParseComments)
+	pkgsParser, errParser := parser.ParseDir(fset, filepath.Join(tmpDir, "go", "models"), nil, parser.ParseComments)
 	if errParser != nil {
 		panic(errParser)
 	}
