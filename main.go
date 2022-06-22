@@ -13,9 +13,9 @@ import (
 	"path/filepath"
 )
 
-func copyModels(destination string) {
+func copyModels(source, destination string) {
 
-	fs.WalkDir(embeddedModelsDir, ".", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(embeddedModelsDir, source, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -40,8 +40,8 @@ func copyModels(destination string) {
 
 // Main docs
 func main() {
-	tmpDir := "tata"
-	copyModels(tmpDir)
+	tmpDir := os.TempDir()
+	copyModels("go", tmpDir)
 	defer os.RemoveAll(tmpDir)
 
 	fset := token.NewFileSet()
