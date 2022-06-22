@@ -1,24 +1,38 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
+)
 
 func main() {
+	src := `package test
 
-	foo := (&Foo{}).Stage()
-	foo.Bar = "Hi"
+    // Hello
+    type A struct {
+        // Where
+        B int // Are you
+    }
+    `
 
-	for _, foo_ := range FooStage {
-		fmt.Println(foo_.Bar)
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "", src, parser.ParseComments)
+	if err != nil {
+		panic(err)
 	}
-}
 
-type Foo struct {
-	Bar string
+	ast.Inspect(f, func(n ast.Node) bool {
+		switch t := n.(type) {
+		case *ast.TypeSpec:
+			fmt.Println(t.Doc.Text())
+		case *ast.StructType:
+			for _, field := range t.Fields.List {
+				fmt.Println(field.Names[0], field.Doc.Text())
+				fmt.Println(field.Names[0], field.Comment.Text())
+			}
+		}
+		return true
+	})
 }
-
-func (foo *Foo) Stage() *Foo {
-	FooStage = append(FooStage, foo)
-	return foo
-}
-
-var FooStage []*Foo
