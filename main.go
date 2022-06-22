@@ -43,10 +43,12 @@ func main() {
 	copyModels("tata")
 
 	fset := token.NewFileSet()
-	pkgs, err := parser.ParseDir(fset, filepath.Join("go", "models"), nil, parser.ParseComments)
-	if err != nil {
-		panic(err)
+	pkgsParser, errParser := parser.ParseDir(fset, filepath.Join("tata", "go", "models"), nil, parser.ParseComments)
+	if errParser != nil {
+		panic(errParser)
 	}
-	_ = pkgs
+	if len(pkgsParser) != 1 {
+		log.Panic("Unable to parser, wrong number of parsers ", len(pkgsParser))
+	}
 
 }
