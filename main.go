@@ -7,33 +7,42 @@ import (
 	"go/token"
 )
 
+// FirstType docs
+type FirstType struct {
+	// FirstMember docs
+	FirstMember string
+}
+
+// SecondType docs
+type SecondType struct {
+	// SecondMember docs
+	SecondMember string
+}
+
+// Main docs
 func main() {
-	src := `package test
+	fset := token.NewFileSet() // positions are relative to fset
 
-	// A is a struct
-	type A struct {
-		// Name is a string field
-		Name string
-	}
-    `
-
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "", src, parser.ParseComments)
+	d, err := parser.ParseDir(fset, "./", nil, parser.ParseComments)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 
-	ast.Inspect(f, func(n ast.Node) bool {
-		switch t := n.(type) {
-		case *ast.TypeSpec:
-			fmt.Println(t.Doc.Text())
-			fmt.Println("Struct ", t.Name)
-		case *ast.StructType:
-			for _, field := range t.Fields.List {
-				fmt.Println(field.Names[0], field.Doc.Text())
-				fmt.Println(field.Names[0], field.Comment.Text())
+	for _, f := range d {
+		ast.Inspect(f, func(n ast.Node) bool {
+			switch x := n.(type) {
+			case *ast.FuncDecl:
+				fmt.Printf("%s:\tFuncDecl %s\t%s\n", fset.Position(n.Pos()), x.Name, x.Doc.Text())
+			case *ast.TypeSpec:
+				fmt.Printf("%s:\tTypeSpec %s\t%s\n", fset.Position(n.Pos()), x.Name, x.Doc.Text())
+			case *ast.Field:
+				fmt.Printf("%s:\tField %s\t%s\n", fset.Position(n.Pos()), x.Names, x.Doc.Text())
+			case *ast.GenDecl:
+				fmt.Printf("%s:\tGenDecl %s\n", fset.Position(n.Pos()), x.Doc.Text())
 			}
-		}
-		return true
-	})
+
+			return true
+		})
+	}
 }
