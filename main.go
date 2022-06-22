@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"go/ast"
+	"go/doc"
 	"go/parser"
 	"go/token"
 )
@@ -40,5 +41,15 @@ func main() {
 
 			return true
 		})
+	}
+
+	for k, f := range d {
+		fmt.Println("package", k)
+		p := doc.New(f, "./", 0)
+
+		for _, t := range p.Types {
+			fmt.Println("  type", t.Name)
+			fmt.Println("    docs:", t.Doc)
+		}
 	}
 }
