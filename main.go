@@ -10,11 +10,11 @@ import (
 func main() {
 	src := `package test
 
-    // Hello
-    type A struct {
-        // Where
-        B int // Are you
-    }
+	// A is a struct
+	type A struct {
+		// Name is a string field
+		Name string
+	}
     `
 
 	fset := token.NewFileSet()
@@ -27,6 +27,7 @@ func main() {
 		switch t := n.(type) {
 		case *ast.TypeSpec:
 			fmt.Println(t.Doc.Text())
+			fmt.Println("Struct ", t.Name)
 		case *ast.StructType:
 			for _, field := range t.Fields.List {
 				fmt.Println(field.Names[0], field.Doc.Text())
