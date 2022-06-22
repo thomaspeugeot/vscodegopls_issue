@@ -4,6 +4,8 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"go/parser"
+	"go/token"
 	"io/fs"
 	"io/ioutil"
 	"log"
@@ -39,4 +41,12 @@ func copyModels(destination string) {
 // Main docs
 func main() {
 	copyModels("tata")
+
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, filepath.Join("go", "models"), nil, parser.ParseComments)
+	if err != nil {
+		panic(err)
+	}
+	_ = pkgs
+
 }

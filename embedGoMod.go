@@ -4,5 +4,5 @@ import (
 	"embed"
 )
 
-//go:embed go/models go.mod
+//go:embed go/models
 var embeddedModelsDir embed.FS
