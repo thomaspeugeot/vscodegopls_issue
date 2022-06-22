@@ -1,5 +1,6 @@
 package main
 
+// imports
 import (
 	"fmt"
 	"go/ast"
@@ -7,16 +8,11 @@ import (
 	"go/token"
 )
 
-// FirstType docs
-type FirstType struct {
-	// FirstMember docs
-	FirstMember string
-}
-
-// SecondType docs
-type SecondType struct {
-	// SecondMember docs
-	SecondMember string
+// Estruct should not be generated
+//
+// swagger:ignore
+type Estruct struct {
+	Name string
 }
 
 // Main docs
