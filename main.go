@@ -2,54 +2,41 @@ package main
 
 // imports
 import (
+	_ "embed"
 	"fmt"
-	"go/ast"
-	"go/doc"
-	"go/parser"
-	"go/token"
+	"io/fs"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
 )
 
-// Estruct should not be generated
-//
-// swagger:ignore
-type Estruct struct {
-	Name string
+func copyModels(destination string) {
+
+	fs.WalkDir(embeddedModelsDir, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(path)
+
+		if d.IsDir() {
+			err := os.Mkdir(filepath.Join(destination, path), 0755)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+			return nil
+		} else {
+			var data, err1 = embeddedModelsDir.ReadFile(path)
+			if err1 != nil {
+				return err1
+			}
+			return ioutil.WriteFile(filepath.Join(destination, path), data, 0777)
+		}
+		return nil
+	})
 }
 
 // Main docs
 func main() {
-	fset := token.NewFileSet() // positions are relative to fset
-
-	d, err := parser.ParseDir(fset, "./", nil, parser.ParseComments)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	for _, f := range d {
-		ast.Inspect(f, func(n ast.Node) bool {
-			switch x := n.(type) {
-			case *ast.FuncDecl:
-				fmt.Printf("%s:\tFuncDecl %s\t%s\n", fset.Position(n.Pos()), x.Name, x.Doc.Text())
-			case *ast.TypeSpec:
-				fmt.Printf("%s:\tTypeSpec %s\t%s\n", fset.Position(n.Pos()), x.Name, x.Doc.Text())
-			case *ast.Field:
-				fmt.Printf("%s:\tField %s\t%s\n", fset.Position(n.Pos()), x.Names, x.Doc.Text())
-			case *ast.GenDecl:
-				fmt.Printf("%s:\tGenDecl %s\n", fset.Position(n.Pos()), x.Doc.Text())
-			}
-
-			return true
-		})
-	}
-
-	for k, f := range d {
-		fmt.Println("package", k)
-		p := doc.New(f, "./", 0)
-
-		for _, t := range p.Types {
-			fmt.Println("  type", t.Name)
-			fmt.Println("    docs:", t.Doc)
-		}
-	}
+	copyModels("tata")
 }
