@@ -4,13 +4,14 @@ package main
 import (
 	"embed"
 	"fmt"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/fs"
 	"log"
 )
 
-func parseModel(embeddedDir embed.FS, source string) {
+func parseModel(embeddedDir embed.FS, source string, pkg *ast.Package) {
 
 	fs.WalkDir(embeddedDir, source, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -26,11 +27,13 @@ func parseModel(embeddedDir embed.FS, source string) {
 				log.Fatalln(err.Error())
 			}
 			fset := token.NewFileSet()
-			pkgsParser, errParser := parser.ParseFile(fset, path, data, parser.ParseComments)
+			astFile, errParser := parser.ParseFile(fset, path, data, parser.ParseComments)
+
+			pkg.Files[path] = astFile
 			if errParser != nil {
 				panic(errParser)
 			}
-			_ = pkgsParser
+			_ = astFile
 			return nil
 		}
 	})
@@ -38,5 +41,8 @@ func parseModel(embeddedDir embed.FS, source string) {
 
 // Main docs
 func main() {
-	parseModel(embeddedModelsDir, "go")
+	pkg := new(ast.Package)
+	pkg.Files = make(map[string]*ast.File)
+	parseModel(embeddedModelsDir, "go", pkg)
+	log.Println("Nb of files ", len(pkg.Files))
 }
