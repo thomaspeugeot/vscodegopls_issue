@@ -11,6 +11,9 @@ import (
 	"log"
 )
 
+//go:embed go
+var embeddedModelsDir embed.FS
+
 func parseModel(embeddedDir embed.FS, source string, pkg *ast.Package) {
 
 	fs.WalkDir(embeddedDir, source, func(path string, d fs.DirEntry, err error) error {
