@@ -2,7 +2,7 @@ package main
 
 // imports
 import (
-	_ "embed"
+	"embed"
 	"fmt"
 	"go/parser"
 	"go/token"
@@ -13,9 +13,9 @@ import (
 	"path/filepath"
 )
 
-func copyModels(source, destination string) {
+func copyModels(embeddedDir embed.FS, source, destination string) {
 
-	fs.WalkDir(embeddedModelsDir, source, func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(embeddedDir, source, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -30,18 +30,17 @@ func copyModels(source, destination string) {
 		} else {
 			var data, err1 = embeddedModelsDir.ReadFile(path)
 			if err1 != nil {
-				return err1
+				log.Fatalln(err.Error())
 			}
 			return ioutil.WriteFile(filepath.Join(destination, path), data, 0777)
 		}
-		return nil
 	})
 }
 
 // Main docs
 func main() {
 	tmpDir := os.TempDir()
-	copyModels("go", tmpDir)
+	copyModels(embeddedModelsDir, "go", tmpDir)
 	defer os.RemoveAll(tmpDir)
 
 	fset := token.NewFileSet()
